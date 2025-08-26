@@ -29,23 +29,28 @@ export default function Home() {
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sistema de Usuários e Equipes</h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Entre com suas credenciais ou{' '}
+            Faça login ou{' '}
             <a href="/setup" className="font-medium text-indigo-600 hover:text-indigo-500">
-              cadastre uma nova empresa
+              crie uma nova empresa
             </a>
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleLogin}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
+              <label htmlFor="empresa-slug" className="sr-only">Slug da Empresa</label>
               <input
+                id="empresa-slug"
                 type="text"
-                placeholder="Slug da Empresa"
+                placeholder="Slug da Empresa (ex: minha-empresa)"
                 value={empresaSlug}
                 onChange={(e) => setEmpresaSlug(e.target.value)}
                 className="rounded-t-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 required
               />
+              <p className="mt-1 text-xs text-gray-500">
+                O slug é o identificador único da sua empresa (fornecido no cadastro)
+              </p>
             </div>
             <div>
               <input

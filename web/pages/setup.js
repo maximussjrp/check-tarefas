@@ -10,6 +10,20 @@ export default function Setup() {
   const [error, setError] = useState('');
   const router = useRouter();
 
+  // Generate slug preview
+  const generateSlug = (nome) => {
+    return nome
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+      .replace(/[^a-z0-9\s-]/g, '') // Remove caracteres especiais
+      .replace(/\s+/g, '-') // Substitui espaços por hífens
+      .replace(/-+/g, '-') // Remove hífens duplicados
+      .replace(/^-|-$/g, ''); // Remove hífens no início e fim
+  };
+
+  const slugPreview = generateSlug(empresaNome);
+
   async function handleCreate(e) {
     e.preventDefault();
     setError('');
@@ -53,6 +67,11 @@ export default function Setup() {
                 className="rounded-t-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 required
               />
+              {slugPreview && (
+                <p className="mt-1 text-xs text-green-600">
+                  ✓ Slug da empresa: <strong>{slugPreview}</strong> (use este código para fazer login)
+                </p>
+              )}
             </div>
             <div>
               <input
