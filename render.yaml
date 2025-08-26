@@ -2,11 +2,13 @@ databases:
   - name: check-tarefas-db
     databaseName: checktarefas
     user: checktarefas
+    region: oregon
 
 services:
   - type: web
     name: check-tarefas-api
     runtime: node
+    region: oregon
     buildCommand: npm run build:api
     startCommand: npm run render:start:api
     healthCheckPath: /
@@ -35,6 +37,7 @@ services:
   - type: web
     name: check-tarefas-web
     runtime: node
+    region: oregon
     buildCommand: npm run build:web
     startCommand: npm run render:start:web
     envVars:
