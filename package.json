@@ -4,7 +4,7 @@
   "description": "Sistema completo de gerenciamento de usuários e equipes",
   "scripts": {
     "dev": "concurrently \"cd server && npm run dev\" \"cd web && npm run dev\"",
-    "build": "cd server && npm run build && cd ../web && npm run build",
+    "build": "cd server && npm install && npx prisma generate && cd ../web && npm install && npm run build",
     "start": "cd server && npm start",
     "server:dev": "cd server && npm run dev",
     "server:build": "cd server && npm run build",
@@ -13,7 +13,9 @@
     "web:build": "cd web && npm run build",
     "web:start": "cd web && npm start",
     "prisma:gen": "cd server && npm run prisma:gen",
-    "prisma:migrate": "cd server && npm run prisma:migrate"
+    "prisma:migrate": "cd server && npm run prisma:migrate",
+    "render:build": "cd server && npm install && npx prisma generate && cd ../web && npm install && npm run build",
+    "render:start": "cd server && npm start"
   },
   "keywords": [
     "nodejs",

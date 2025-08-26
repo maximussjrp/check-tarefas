@@ -1,63 +1,46 @@
-# Deploy no Render
+# Deploy no Render - Opção Unificada
 
-## Preparação para Deploy
+## ✅ **Configuração Escolhida: Deploy Unificado (Opção B)**
 
-### 1. Configuração do Repositório Git
+### 🚀 **Deploy Completo no Render**
 
-```bash
-# Já executado:
-git init
-git add .
-git commit -m "Initial commit: Sistema de Usuários e Equipes completo"
-git branch -M main
+1. **Acesse https://render.com**
+2. **Clique em "New" → "Web Service"**
+3. **Conecte seu repositório GitHub**
+4. **Configure:**
+   - **Name**: `sistema-usuarios-equipes`
+   - **Root Directory**: `/` (deixe vazio - raiz do projeto)
+   - **Environment**: `Node`
+   - **Build Command**: `npm run render:build`
+   - **Start Command**: `npm run render:start`
+   - **Instance Type**: `Free` (para testes)
 
-# Execute (substitua SEU_USUARIO):
-git remote add origin https://github.com/SEU_USUARIO/sistema-usuarios-equipes.git
-git push -u origin main
+### 🔧 **Variáveis de Ambiente no Render**
+
+Configure estas variáveis no dashboard do Render:
+
+```
+DATABASE_URL=file:./dev.db
+JWT_SECRET=sua-chave-super-secreta-e-muito-forte-aqui-2024
+PORT=10000
+NEXT_PUBLIC_API_URL=https://SEU-APP-NAME.onrender.com
 ```
 
-### 2. Deploy da API no Render
+**⚠️ Importante:** 
+- Substitua `SEU-APP-NAME` pelo nome que você escolheu no Render
+- Use uma JWT_SECRET forte e única
 
-1. Acesse https://render.com
-2. Clique em **"New"** → **"Web Service"**
-3. Conecte seu repositório GitHub
-4. Configure:
-   - **Name**: `sistema-usuarios-api`
-   - **Root Directory**: `server`
-   - **Environment**: `Node`
-   - **Build Command**: `npm install && npx prisma generate`
-   - **Start Command**: `npm start`
+### 📦 **O que acontece no build:**
 
-5. **Variáveis de Ambiente**:
-   ```
-   DATABASE_URL=file:./dev.db
-   JWT_SECRET=sua-chave-super-secreta-aqui
-   PORT=10000
-   ```
+1. **Build API**: Instala dependências e gera Prisma client
+2. **Build Web**: Instala dependências e compila Next.js  
+3. **Start**: Inicia apenas o servidor API (que serve tudo)
 
-### 3. Deploy do Frontend no Render
+### 🌐 **URLs após Deploy**
 
-1. Clique em **"New"** → **"Static Site"**
-2. Conecte o mesmo repositório
-3. Configure:
-   - **Name**: `sistema-usuarios-web`
-   - **Root Directory**: `web`
-   - **Build Command**: `npm install && npm run build`
-   - **Publish Directory**: `.next`
-
-4. **Variáveis de Ambiente**:
-   ```
-   NEXT_PUBLIC_API_URL=https://sistema-usuarios-api.onrender.com
-   ```
-
-### 4. Alternativa: Deploy Completo no Render
-
-Para deploy de ambos em um serviço:
-
-1. **Web Service**:
-   - **Root Directory**: `/` (raiz)
-   - **Build Command**: `cd server && npm install && npx prisma generate && cd ../web && npm install && npm run build`
-   - **Start Command**: `cd server && npm start`
+- **Sistema Completo**: `https://SEU-APP-NAME.onrender.com`
+- **API Endpoints**: `https://SEU-APP-NAME.onrender.com/auth/login`
+- **Frontend**: Servido pelo mesmo domínio
 
 ### 5. Pós-Deploy
 

@@ -1,6 +1,7 @@
 require('dotenv/config');
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { PrismaClient } = require('@prisma/client');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
@@ -10,6 +11,12 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+// Serve static files from Next.js build in production
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../../web/.next')));
+  app.use(express.static(path.join(__dirname, '../../web/public')));
+}
 
 const PORT = Number(process.env.PORT || 6789);
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
@@ -320,6 +327,13 @@ app.post('/equipes', auth(), requireRole('admin', 'manager'), async (req, res) =
     res.status(500).json({ error: 'Erro interno do servidor' });
   }
 });
+
+// Serve Next.js pages in production
+if (process.env.NODE_ENV === 'production') {
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../../web/.next/server/pages/index.html'));
+  });
+}
 
 app.listen(PORT, 'localhost', () => {
   console.log(`🚀 API rodando em http://localhost:${PORT}`);
