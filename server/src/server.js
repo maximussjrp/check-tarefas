@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../../web/public')));
 }
 
-const PORT = Number(process.env.PORT || 6789);
+const PORT = Number(process.env.PORT) || 10000;
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
 
 function signToken(payload) {
@@ -335,6 +335,7 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.listen(PORT, 'localhost', () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 API rodando em http://localhost:${PORT}`);
+  console.log(`🌍 Servidor acessível em 0.0.0.0:${PORT}`);
 });
