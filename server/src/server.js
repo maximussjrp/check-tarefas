@@ -14,8 +14,10 @@ app.use(express.json());
 
 // Serve static files from Next.js build in production
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../../web/.next')));
-  app.use(express.static(path.join(__dirname, '../../web/public')));
+  // Serve Next.js static files
+  app.use('/_next/static', express.static(path.join(__dirname, '../../web/.next/static')));
+  app.use('/static', express.static(path.join(__dirname, '../../web/.next/static')));
+  app.use('/', express.static(path.join(__dirname, '../../web/public')));
 }
 
 const PORT = Number(process.env.PORT) || 10000;
@@ -50,7 +52,8 @@ function requireRole(...roles) {
 
 // ========== ROUTES ==========
 
-app.get('/', (_, res) => res.json({ message: '🚀 API Tasbo - Sistema de Usuários e Equipes funcionando!' }));
+// API Status route
+app.get('/api/status', (_, res) => res.json({ message: '🚀 API Tasbo - Sistema de Usuários e Equipes funcionando!' }));
 
 // AUTH ROUTES
 app.post('/auth/register-company', async (req, res) => {
@@ -328,10 +331,41 @@ app.post('/equipes', auth(), requireRole('admin', 'manager'), async (req, res) =
   }
 });
 
-// Serve Next.js pages in production
+// Serve Next.js pages in production  
 if (process.env.NODE_ENV === 'production') {
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../web/.next/server/pages/index.html'));
+  // Catch all handler: serve the Next.js app for frontend routes
+  app.get('*', (req, res, next) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/') || req.path.startsWith('/auth/')) {
+      return next();
+    }
+    
+    // Determine which HTML file to serve based on route
+    let htmlFile;
+    switch (req.path) {
+      case '/setup':
+        htmlFile = 'setup.html';
+        break;
+      case '/dashboard':
+        htmlFile = 'dashboard.html';
+        break;
+      case '/users':
+        htmlFile = 'users.html';
+        break;
+      default:
+        htmlFile = 'index.html';
+        break;
+    }
+    
+    // Serve the appropriate HTML file
+    const filePath = path.join(__dirname, '../../web/.next/server/pages', htmlFile);
+    res.sendFile(filePath, (err) => {
+      if (err) {
+        console.error('Error serving Next.js file:', err);
+        console.error('Attempted path:', filePath);
+        res.status(404).send('Page not found');
+      }
+    });
   });
 }
 
