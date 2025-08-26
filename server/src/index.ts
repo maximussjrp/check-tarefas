@@ -1,4 +1,4 @@
-import 'dotenv/config'; import express from 'express'; import cors from 'cors'; import { PrismaClient, Role } from '@prisma/client'; import jwt from 'jsonwebtoken'; import bcrypt from 'bcryptjs';
+import 'dotenv/config'; import express, { Request, Response } from 'express'; import cors from 'cors'; import { PrismaClient, Role } from '@prisma/client'; import jwt from 'jsonwebtoken'; import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient(); const app = express(); app.use(cors()); app.use(express.json());
 const PORT = Number(process.env.PORT || 4000); const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret';
 type JwtUser = { userId:string; empresaId:string; role:Role }; const signToken = (p:JwtUser)=> jwt.sign(p, JWT_SECRET, { expiresIn: '7d' });
@@ -10,12 +10,12 @@ async function bootstrapMaster(){ if(String(process.env.BOOTSTRAP_ENABLED).toLow
   let emp=await prisma.empresa.findUnique({ where:{ slug } }); if(!emp){ emp=await prisma.empresa.create({ data:{ name, slug } }); console.log('[bootstrap] Empresa criada:', slug); }
   let usr=await prisma.usuario.findUnique({ where:{ email_empresaId:{ email: ae, empresaId: emp.id } } });
   if(!usr){ usr=await prisma.usuario.create({ data:{ name: an, email: ae, password: await bcrypt.hash(ap,10), role:'ADMIN', empresaId: emp.id } }); console.log('[bootstrap] Admin criado:', ae); } else { console.log('[bootstrap] Admin já existe:', ae); } }
-app.post('/auth/register-company', async (req,res)=>{ const {empresaName,empresaSlug,adminName,adminEmail,adminPassword}=req.body||{};
+app.post('/auth/register-company', async (req: Request, res: Response)=>{ const {empresaName,empresaSlug,adminName,adminEmail,adminPassword}=req.body||{};
   if(!empresaName||!empresaSlug||!adminName||!adminEmail||!adminPassword) return res.status(400).json({error:'Missing fields'});
   const slug=String(empresaSlug).toLowerCase().replace(/[^a-z0-9-]/g,'-'); const exists=await prisma.empresa.findUnique({ where:{ slug } }); if(exists) return res.status(409).json({error:'Slug already in use'});
   const empresa=await prisma.empresa.create({ data:{ name:empresaName, slug, users:{ create:{ name:adminName, email:adminEmail.toLowerCase(), password:await bcrypt.hash(adminPassword,10), role:'ADMIN' } } }, include:{ users:true } });
   const admin=empresa.users[0]; const token=signToken({ userId:admin.id, empresaId:empresa.id, role:admin.role }); res.json({ token, empresa:{ id:empresa.id, name:empresa.name, slug:empresa.slug }, user:{ id:admin.id, name:admin.name, role:admin.role } }); });
-app.post('/auth/login', async (req,res)=>{ const {empresaSlug,email,password}=req.body||{}; if(!empresaSlug||!email||!password) return res.status(400).json({error:'Missing fields'});
+app.post('/auth/login', async (req: Request, res: Response)=>{ const {empresaSlug,email,password}=req.body||{}; if(!empresaSlug||!email||!password) return res.status(400).json({error:'Missing fields'});
   const empresa=await prisma.empresa.findUnique({ where:{ slug:String(empresaSlug).toLowerCase() } }); if(!empresa) return res.status(404).json({error:'Empresa not found'});
   const user=await prisma.usuario.findUnique({ where:{ email_empresaId:{ email:String(email).toLowerCase(), empresaId: empresa.id } } }); if(!user||!user.isActive) return res.status(401).json({error:'Invalid credentials'});
   const ok=await bcrypt.compare(password, user.password); if(!ok) return res.status(401).json({error:'Invalid credentials'});
