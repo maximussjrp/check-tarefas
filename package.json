@@ -1,34 +1,8 @@
 {
-  "name": "sistema-usuarios-equipes",
+  "name": "tasbo-monorepo",
+  "private": true,
   "version": "1.0.0",
-  "description": "Sistema completo de gerenciamento de usuários e equipes",
   "scripts": {
-    "dev": "concurrently \"cd server && npm run dev\" \"cd web && npm run dev\"",
-    "build": "cd server && npm install && npx prisma generate && cd ../web && npm install && npm run build",
-    "start": "cd server && npm start",
-    "server:dev": "cd server && npm run dev",
-    "server:build": "cd server && npm run build",
-    "server:start": "cd server && npm start",
-    "web:dev": "cd web && npm run dev",
-    "web:build": "cd web && npm run build",
-    "web:start": "cd web && npm start",
-    "prisma:gen": "cd server && npm run prisma:gen",
-    "prisma:migrate": "cd server && npm run prisma:migrate",
-    "render:build": "cd server && npm install && npx prisma generate && cd ../web && npm install && npm run build",
-    "render:start": "cd server && npx prisma migrate deploy && npm run seed && npm start"
-  },
-  "keywords": [
-    "nodejs",
-    "express",
-    "nextjs",
-    "prisma",
-    "authentication",
-    "teams",
-    "users"
-  ],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+    "render:build": "cd server && npm install && npx prisma generate && npm run build && cd ../web && npm install && npm run build"
   }
 }
