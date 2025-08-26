@@ -1,0 +1,38 @@
+databases:
+  - name: tasbo-db
+
+services:
+  - type: web
+    name: tasbo-api
+    rootDir: server
+    env: node
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && node dist/index.js
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: tasbo-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: BOOTSTRAP_ENABLED
+        value: true
+      - key: BOOTSTRAP_COMPANY_NAME
+        value: Master Org
+      - key: BOOTSTRAP_COMPANY_SLUG
+        value: master
+      - key: BOOTSTRAP_ADMIN_NAME
+        value: Master Admin
+      - key: BOOTSTRAP_ADMIN_EMAIL
+        value: master@tasbo.local
+      - key: BOOTSTRAP_ADMIN_PASSWORD
+        value: master123
+  - type: web
+    name: tasbo-web
+    rootDir: web
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://REPLACE-WITH-API-URL
