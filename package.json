@@ -3,6 +3,6 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "render:build": "cd server && npm ci --include=dev && npx prisma generate && npm run build && cd ../web && npm ci --include=dev && npm run build"
+    "render:build": "cd server && npm install --include=dev && npx prisma generate && npm run build && cd ../web && npm install --include=dev && npm run build"
   }
 }
