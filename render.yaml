@@ -10,7 +10,7 @@ services:
     runtime: node
     region: oregon
     buildCommand: npm run build:api
-    startCommand: npm run render:start:api
+    startCommand: cd server && npx prisma migrate deploy && node dist/index.js
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
