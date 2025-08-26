@@ -11,6 +11,9 @@
     "noImplicitAny": false,
     "types": [
       "node"
+    ],
+    "lib": [
+      "ES2020"
     ]
   },
   "include": [
