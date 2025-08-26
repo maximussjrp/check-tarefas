@@ -111,17 +111,20 @@ app.post('/auth/register-company', async (req, res) => {
 });
 
 app.post('/auth/login', async (req, res) => {
-  const { email, senha } = req.body;
+  const { empresaSlug, email, senha } = req.body;
   
-  if (!email || !senha) {
-    return res.status(400).json({ error: 'Email e senha são obrigatórios' });
+  if (!empresaSlug || !email || !senha) {
+    return res.status(400).json({ error: 'Slug da empresa, email e senha são obrigatórios' });
   }
   
   try {
     const usuario = await prisma.usuario.findFirst({
       where: { 
         email: email.toLowerCase(),
-        isActive: true 
+        isActive: true,
+        empresa: {
+          slug: empresaSlug
+        }
       },
       include: { empresa: true }
     });
@@ -144,7 +147,7 @@ app.post('/auth/login', async (req, res) => {
         email: usuario.email, 
         role: usuario.role 
       },
-      company: { 
+      empresa: { 
         id: usuario.empresa.id, 
         nome: usuario.empresa.nome, 
         slug: usuario.empresa.slug 

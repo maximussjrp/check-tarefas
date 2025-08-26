@@ -13,7 +13,7 @@ export default function Home() {
     e.preventDefault();
     setError('');
     try {
-      const { data } = await api.post('/auth/login', { empresaSlug, email, password });
+      const { data } = await api.post('/auth/login', { empresaSlug, email, senha: password });
       localStorage.setItem('token', data.token);
       localStorage.setItem('empresa', JSON.stringify(data.empresa));
       localStorage.setItem('user', JSON.stringify(data.user));
