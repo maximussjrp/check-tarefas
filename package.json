@@ -14,7 +14,7 @@
     "web:start": "cd web && npm start",
     "prisma:gen": "cd server && npm run prisma:gen",
     "prisma:migrate": "cd server && npm run prisma:migrate",
-    "render:build": "cd server && npm install && npx prisma generate && cd ../web && npm install && npm install --save-dev typescript @types/react @types/node && npm run build",
+    "render:build": "cd server && npm install && npx prisma generate && cd ../web && npm install && npm run build",
     "render:start": "cd server && npm start"
   },
   "keywords": [
