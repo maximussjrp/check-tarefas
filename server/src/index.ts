@@ -49,31 +49,58 @@ function requireRole(...roles: Role[]) {
   };
 }
 
+// Validar DATABASE_URL
+function validateDatabaseUrl() {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.error('❌ DATABASE_URL não está definida!');
+    process.exit(1);
+  }
+  if (!dbUrl.startsWith('postgres://') && !dbUrl.startsWith('postgresql://')) {
+    console.error('❌ DATABASE_URL deve começar com postgres:// ou postgresql://');
+    console.error('❌ URL atual:', dbUrl.substring(0, 20) + '...');
+    process.exit(1);
+  }
+  console.log('✅ DATABASE_URL válida:', dbUrl.substring(0, 30) + '...');
+}
+
 // Bootstrap MASTER (empresa+admin) ao iniciar
 async function bootstrapMaster() {
   if (String(process.env.BOOTSTRAP_ENABLED).toLowerCase() === 'false') return;
+  
+  console.log('🚀 Iniciando bootstrap master...');
   const empresaSlug = process.env.BOOTSTRAP_COMPANY_SLUG || 'master';
   const empresaName = process.env.BOOTSTRAP_COMPANY_NAME || 'Master Org';
   const adminName = process.env.BOOTSTRAP_ADMIN_NAME || 'Master Admin';
   const adminEmail = (process.env.BOOTSTRAP_ADMIN_EMAIL || 'master@tasbo.local').toLowerCase();
   const adminPassword = process.env.BOOTSTRAP_ADMIN_PASSWORD || 'master123';
 
-  let empresa = await prisma.empresa.findUnique({ where: { slug: empresaSlug } });
-  if (!empresa) {
-    empresa = await prisma.empresa.create({
-      data: { name: empresaName, slug: empresaSlug }
-    });
-    console.log(`[bootstrap] Empresa criada: ${empresa.slug}`);
-  }
+  try {
+    let empresa = await prisma.empresa.findUnique({ where: { slug: empresaSlug } });
+    if (!empresa) {
+      empresa = await prisma.empresa.create({
+        data: { name: empresaName, slug: empresaSlug }
+      });
+      console.log(`✅ [bootstrap] Empresa criada: ${empresa.slug}`);
+    } else {
+      console.log(`ℹ️  [bootstrap] Empresa já existe: ${empresa.slug}`);
+    }
 
-  let user = await prisma.usuario.findUnique({ where: { email_empresaId: { email: adminEmail, empresaId: empresa.id } } });
-  if (!user) {
-    user = await prisma.usuario.create({
-      data: { name: adminName, email: adminEmail, password: await bcrypt.hash(adminPassword, 10), role: 'ADMIN', empresaId: empresa.id }
-    });
-    console.log(`[bootstrap] Admin criado: ${adminEmail}`);
-  } else {
-    console.log(`[bootstrap] Admin já existe: ${adminEmail}`);
+    let user = await prisma.usuario.findUnique({ where: { email_empresaId: { email: adminEmail, empresaId: empresa.id } } });
+    if (!user) {
+      user = await prisma.usuario.create({
+        data: { name: adminName, email: adminEmail, password: await bcrypt.hash(adminPassword, 10), role: 'ADMIN', empresaId: empresa.id }
+      });
+      console.log(`✅ [bootstrap] Admin criado: ${adminEmail}`);
+    } else {
+      console.log(`ℹ️  [bootstrap] Admin já existe: ${adminEmail}`);
+    }
+  } catch (error: any) {
+    console.error('❌ Erro no bootstrap:', error?.code || error?.message || error);
+    if (error?.code === 'P1001') {
+      console.error('❌ Não foi possível conectar ao banco. Verifique DATABASE_URL');
+    }
+    throw error;
   }
 }
 
@@ -285,6 +312,28 @@ app.get('/metrics/completions', auth(), async (req: any, res: any) => {
 
 app.get('/', (_: any, res: any) => res.send('Tasbo API ok'));
 
+// Endpoint de debug para verificar configuração
+app.get('/debug/config', (_: any, res: any) => {
+  const dbUrl = process.env.DATABASE_URL;
+  const config = {
+    hasDatabase: !!dbUrl,
+    databasePrefix: dbUrl ? dbUrl.substring(0, 15) + '...' : 'NOT_SET',
+    bootstrapEnabled: process.env.BOOTSTRAP_ENABLED,
+    jwtSecret: process.env.JWT_SECRET ? 'SET' : 'NOT_SET',
+    nodeEnv: process.env.NODE_ENV || 'development',
+    port: PORT
+  };
+  res.json(config);
+});
+
+// Inicializar servidor
+console.log('🚀 Iniciando Check Tarefas API...');
+validateDatabaseUrl();
+
 bootstrapMaster()
-  .then(() => app.listen(PORT, () => console.log(`API listening on :${PORT}`)))
-  .catch((e) => { console.error('Bootstrap error', e); app.listen(PORT, () => console.log(`API listening on :${PORT}`)); });
+  .then(() => app.listen(PORT, () => console.log(`✅ API listening on :${PORT}`)))
+  .catch((e) => { 
+    console.error('❌ Bootstrap error', e); 
+    console.log('⚠️  Iniciando servidor sem bootstrap...'); 
+    app.listen(PORT, () => console.log(`⚠️  API listening on :${PORT} (bootstrap failed)`)); 
+  });

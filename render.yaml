@@ -29,6 +29,8 @@ services:
         value: "master@tasbo.local"
       - key: BOOTSTRAP_ADMIN_PASSWORD
         value: "master123"
+      - key: NODE_ENV
+        value: "production"
 
   - type: web
     name: check-tarefas-web
@@ -38,3 +40,5 @@ services:
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://check-tarefas-api.onrender.com
+      - key: NODE_ENV
+        value: "production"
