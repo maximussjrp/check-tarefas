@@ -1,8 +1,10 @@
 {
-  "name": "tasbo-monorepo",
+  "name": "check-tarefas-monorepo",
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "render:build": "cd server && npm install && npx prisma generate && npm run build && cd ../web && npm install && npm run build"
+    "build:api": "cd server && npm install && npx prisma generate && npm run build",
+    "build:web": "cd web && npm install && npm run build",
+    "render:build": "npm run build:api && npm run build:web"
   }
 }
