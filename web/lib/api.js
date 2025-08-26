@@ -1,6 +1,16 @@
 import axios from 'axios';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:6789';
+// Detecta automaticamente a URL base
+const getBaseURL = () => {
+  if (typeof window !== 'undefined') {
+    // No browser, usa a URL atual
+    return window.location.origin;
+  }
+  // No servidor, usa a variável de ambiente ou localhost
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:6789';
+};
+
+const API_URL = getBaseURL();
 
 export const api = axios.create({
   baseURL: API_URL,
