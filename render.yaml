@@ -2,7 +2,6 @@ databases:
   - name: check-tarefas-db
     databaseName: check_tarefas
     user: check_tarefas_user
-    plan: free
 
 services:
   - type: web
