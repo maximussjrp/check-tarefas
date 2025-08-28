@@ -1,0 +1,13 @@
+{
+  "name": "check-tarefas-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "render:build": "npm run build:api && npm run build:web",
+    "build:api": "cd server && npm install && npx prisma generate && npm run build",
+    "build:web": "cd web && npm install && npm run build",
+    "render:start": "npm run render:start:api",
+    "render:start:api": "cd server && npx prisma migrate deploy && node dist/index.js",
+    "render:start:web": "cd web && npm start"
+  }
+}
