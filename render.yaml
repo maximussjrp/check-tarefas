@@ -1,0 +1,18 @@
+databases:
+  - name: check-tarefas-db
+    databaseName: check_tarefas
+    user: check_tarefas_user
+
+services:
+  - type: web
+    name: check-tarefas-api
+    env: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: check-tarefas-db
+          property: connectionString
+      - key: ENVIRONMENT
+        value: production
